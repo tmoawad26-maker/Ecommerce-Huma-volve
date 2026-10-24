@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'core/di/service_locator.dart';
 import 'core/theme.dart';
 import 'features/splash/screens/splash_screen.dart';
 
 void main() {
+  setupServiceLocator();
   runApp(const MyApp());
 }
 
