@@ -46,7 +46,8 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton(() => LoginUseCase(getIt<AuthRepo>()));
   getIt.registerLazySingleton(() => SignUpUseCase(getIt<AuthRepo>()));
-  getIt.registerLazySingleton(() => HomeCategoryUseCase(getIt<HomeRepo>()));
+  getIt.registerLazySingleton<HomeProductsUseCase>(getIt());
+  getIt.registerLazySingleton(() => HomeCategoryUseCase(getIt(),getIt()));
   getIt.registerLazySingleton(() => HomeProductsUseCase(getIt<HomeRepo>()));
 
   getIt.registerFactory(
