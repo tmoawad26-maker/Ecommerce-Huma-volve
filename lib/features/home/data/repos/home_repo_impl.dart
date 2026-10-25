@@ -20,9 +20,17 @@ class HomeRepoImpl implements HomeRepo {
   }
 
   @override
-  Future<ApiResult<List<ProductEntity>>> getProducts(int? categoryId) {
+  Future<ApiResult<List<ProductEntity>>> getProducts(
+    int? categoryId, {
+    required int limit,
+    required int offset,
+  }) {
     return apiCall(() async {
-      final products = await homeRemoteDataSource.getProducts(categoryId: categoryId);
+      final products = await homeRemoteDataSource.getProducts(
+        categoryId: categoryId,
+        limit: limit,
+        offset: offset,
+      );
       return products.map((product) => product.toDomain()).toList();
     });
   }

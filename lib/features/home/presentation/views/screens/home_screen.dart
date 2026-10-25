@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../../core/di/service_locator.dart';
 
 import '../../../../../core/dummy_data.dart';
@@ -8,17 +9,52 @@ import '../../cubit/home_cubit.dart';
 import '../widgets/category_chip.dart';
 import '../widgets/product_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final ScrollController _scrollController;
+  late HomeCubit _homeCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(_onListen);
+  }
+
+  void _onListen() {
+    if (!_scrollController.hasClients) return;
+    const triggerDistance = 200;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - triggerDistance) {
+      _homeCubit.loadProductsMore(_homeCubit.categoryId);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<HomeCubit>()..loadHome(),
+    return BlocProvider<HomeCubit>(
+      create: (context) {
+        _homeCubit = getIt<HomeCubit>();
+        _homeCubit.loadHome();
+        return _homeCubit;
+      },
       child: Scaffold(
         backgroundColor: AppTheme.background,
         body: SafeArea(
           child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
@@ -42,28 +78,29 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: const Icon(Icons.menu, color: AppTheme.primary),
+                            child: const Icon(
+                              Icons.menu,
+                              color: AppTheme.primary,
+                            ),
                           ),
                           CircleAvatar(
                             radius: 24,
-                            backgroundImage: NetworkImage(dummyUser.profilePictureUrl),
+                            backgroundImage: NetworkImage(
+                              dummyUser.profilePictureUrl,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 32),
                       Text(
                         'Explore',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge
+                        style: Theme.of(context).textTheme.displayLarge
                             ?.copyWith(fontSize: 36),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Best trendy collection!',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
+                        style: Theme.of(context).textTheme.bodyMedium
                             ?.copyWith(fontSize: 18),
                       ),
                       const SizedBox(height: 32),
@@ -84,14 +121,21 @@ class HomeScreen extends StatelessWidget {
                           decoration: InputDecoration(
                             hintText: 'Search clothes...',
                             hintStyle: TextStyle(color: Colors.grey.shade400),
-                            prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                            ),
                             suffixIcon: Container(
                               margin: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: AppTheme.primary,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.tune, color: Colors.white, size: 20),
+                              child: const Icon(
+                                Icons.tune,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                             border: InputBorder.none,
                           ),
@@ -99,12 +143,18 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
                       BlocBuilder<HomeCubit, HomeState>(
-                        buildWhen: (previous, current) =>
-                            current is! HomeProductsLoadingState &&
-                            current is! HomeProductsSuccessState &&
-                            current is! HomeProductsFailureState,
+                        buildWhen: (previous, current) {
+                          if (current is HomeProductsLoadingState ||
+                              current is HomeProductsSuccessState ||
+                              current is HomeProductsFailureState) {
+                            return false;
+                          }
+                          return true;
+                        },
+
                         builder: (context, state) {
-                          if (state is HomeLoadingState || state is HomeInitial) {
+                          if (state is HomeLoadingState ||
+                              state is HomeInitial) {
                             return const SizedBox(
                               height: 44,
                               child: Center(
@@ -117,7 +167,9 @@ class HomeScreen extends StatelessWidget {
                           if (state is HomeFailureState) {
                             return SizedBox(
                               height: 44,
-                              child: Center(child: Text('Error: ${state.errorMessage}')),
+                              child: Center(
+                                child: Text('Error: ${state.errorMessage}'),
+                              ),
                             );
                           }
                           if (state is CategorySuccess) {
@@ -131,7 +183,9 @@ class HomeScreen extends StatelessWidget {
                                     const SizedBox(width: 12),
                                 itemBuilder: (context, index) => CategoryChip(
                                   label: categories[index].name ?? 'Unknown',
-                                  isSelected: index == 0,
+                                  isSelected:
+                                      categories[index].id ==
+                                      context.read<HomeCubit>().categoryId,
                                   onTap: () => context
                                       .read<HomeCubit>()
                                       .getProducts(categories[index].id),
@@ -153,18 +207,24 @@ class HomeScreen extends StatelessWidget {
                       state is HomeProductsLoadingState) {
                     return const SliverToBoxAdapter(
                       child: Center(
-                        child: CircularProgressIndicator(color: AppTheme.primary),
+                        child: CircularProgressIndicator(
+                          color: AppTheme.primary,
+                        ),
                       ),
                     );
                   }
                   if (state is HomeFailureState) {
                     return SliverToBoxAdapter(
-                      child: Center(child: Text('Error: ${state.errorMessage}')),
+                      child: Center(
+                        child: Text('Error: ${state.errorMessage}'),
+                      ),
                     );
                   }
                   if (state is HomeProductsFailureState) {
                     return SliverToBoxAdapter(
-                      child: Center(child: Text('Error: ${state.errorMessage}')),
+                      child: Center(
+                        child: Text('Error: ${state.errorMessage}'),
+                      ),
                     );
                   }
                   if (state is HomeProductsSuccessState) {
@@ -174,19 +234,56 @@ class HomeScreen extends StatelessWidget {
                       sliver: SliverGrid(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.7,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
                         delegate: SliverChildBuilderDelegate(
-                          (context, index) => ProductCard(product: products[index]),
-                          childCount: products.length,
+                          (context, index) {
+                            if (index >= products.length) {
+                              if (state.loadMoreError != null) {
+                                return Center(
+                                  child: Text(state.loadMoreError!),
+                                );
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppTheme.primary,
+                                ),
+                              );
+                            }
+                            return ProductCard(product: products[index]);
+                          },
+                          childCount:
+                              products.length +
+                              (state.isLoadingMore ||
+                                      state.loadMoreError != null
+                                  ? 1
+                                  : 0),
                         ),
                       ),
                     );
                   }
                   return const SliverToBoxAdapter(child: SizedBox.shrink());
+                },
+              ),
+              BlocBuilder<HomeCubit, HomeState>(
+                builder: (context, state) {
+                  if (state is HomeProductsLoadingState) {
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.all(25),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return SliverToBoxAdapter(child: SizedBox.shrink());
+                  }
                 },
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),

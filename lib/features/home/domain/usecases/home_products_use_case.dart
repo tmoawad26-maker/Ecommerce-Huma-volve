@@ -7,7 +7,11 @@ class HomeProductsUseCase {
 
   HomeProductsUseCase(this.homeRepo);
 
-  Future<ApiResult<List<ProductEntity>>> call(int? categoryId) async {
-    return homeRepo.getProducts(categoryId);
+  Future<ApiResult<List<ProductEntity>>> call(
+    int? categoryId, {
+    required int limit,
+    required int offset,
+  }) async {
+    return homeRepo.getProducts(categoryId, limit: limit, offset: offset);
   }
 }

@@ -4,5 +4,9 @@ import 'package:ecommerce_app_huma_volve/features/home/domain/entities/product_e
 
 abstract class HomeRepo {
   Future<ApiResult<List<CategoryEntity>>> getCategories();
-  Future<ApiResult<List<ProductEntity>>> getProducts(int? categoryId);
+  Future<ApiResult<List<ProductEntity>>> getProducts(
+    int? categoryId, {
+    required int limit,
+    required int offset,
+  });
 }

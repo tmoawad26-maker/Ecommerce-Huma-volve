@@ -12,8 +12,16 @@ class HomeRemoteDataSource {
     return categories;
   }
 
-  Future<List<ProductModel>> getProducts({int? categoryId}) async {
-    final products = await homeService.getCategoryById(id: categoryId);
+  Future<List<ProductModel>> getProducts({
+    int? categoryId,
+    required int limit,
+    required int offset,
+  }) async {
+    final products = await homeService.getCategoryById(
+      id: categoryId,
+      limit: limit,
+      offset: offset,
+    );
     return products;
   }
 }

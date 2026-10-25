@@ -19,8 +19,14 @@ final class HomeFailureState extends HomeState {
 
 final class HomeProductsSuccessState extends HomeState {
   final List<ProductEntity> productList;
+  final bool isLoadingMore;
+  final String? loadMoreError;
 
-  HomeProductsSuccessState(this.productList);
+  HomeProductsSuccessState(
+    this.productList, {
+    this.isLoadingMore = false,
+    this.loadMoreError,
+  });
 }
 
 final class HomeProductsLoadingState extends HomeState {}
