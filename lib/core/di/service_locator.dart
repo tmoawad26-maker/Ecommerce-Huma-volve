@@ -20,7 +20,7 @@ import '../../features/home/presentation/cubit/home_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 
-void setupServiceLocator() {
+Future<void> setupServiceLocator() async  {
   if (getIt.isRegistered<Dio>()) return;
 
   getIt.registerLazySingleton<Dio>(ApiClient.createDio);
@@ -46,9 +46,8 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton(() => LoginUseCase(getIt<AuthRepo>()));
   getIt.registerLazySingleton(() => SignUpUseCase(getIt<AuthRepo>()));
-  getIt.registerLazySingleton<HomeProductsUseCase>(getIt());
+  getIt.registerFactory(() => HomeProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => HomeCategoryUseCase(getIt(),getIt()));
-  getIt.registerLazySingleton(() => HomeProductsUseCase(getIt<HomeRepo>()));
 
   getIt.registerFactory(
     () => AuthCubit(
