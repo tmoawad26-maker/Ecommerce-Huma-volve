@@ -26,10 +26,9 @@ class ProductModel {
     slug = json['slug'];
     price = json['price'];
     description = json['description'];
-    category = json['category'] != null
-        ? new Category.fromJson(json['category'])
-        : null;
-    images = json['images'].cast<String>();
+    category = json['category'] != null ? Category.fromJson(json['category']) : null;
+    final rawImages = json['images'];
+    images = rawImages == null ? const [] : List<String>.from(rawImages);
     creationAt = json['creationAt'];
     updatedAt = json['updatedAt'];
   }

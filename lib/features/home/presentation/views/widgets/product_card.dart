@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/dummy_data.dart';
 import '../../../../../core/theme.dart';
-import '../../../../details/screens/product_details_screen.dart';
+import '../../../../details/presentation/views/screens/product_details_screen.dart';
 import '../../../domain/entities/product_entity.dart';
 
 class ProductCard extends StatelessWidget {
@@ -21,17 +20,7 @@ class ProductCard extends StatelessWidget {
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
             pageBuilder: (context, animation, secondaryAnimation) =>
-                ProductDetailsScreen(
-                  product: Product(
-                    id: '1',
-                    name: 'fakjfd',
-                    description: 'description',
-                    price: 20.5,
-                    imageUrl: "https://fkjfk",
-                    colors: [Colors.white],
-                    sizes: ['20'],
-                  ),
-                ),
+                ProductDetailsScreen(productId: product.id),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
@@ -172,7 +161,10 @@ class ProductCard extends StatelessWidget {
     return Container(
       color: Colors.grey.shade100,
       alignment: Alignment.center,
-      child: Icon(Icons.image_not_supported_outlined, color: Colors.grey.shade400),
+      child: Icon(
+        Icons.image_not_supported_outlined,
+        color: Colors.grey.shade400,
+      ),
     );
   }
 }

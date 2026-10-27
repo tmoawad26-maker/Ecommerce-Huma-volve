@@ -4,10 +4,13 @@ import 'package:ecommerce_app_huma_volve/features/home/domain/repos/home_repo.da
 import 'package:ecommerce_app_huma_volve/features/home/domain/usecases/home_products_use_case.dart';
 
 class HomeCategoryUseCase {
-  final HomeRepo homeRpo;
-  HomeCategoryUseCase(this.homeRpo, HomeProductsUseCase homeProductsUseCase);
- Future<ApiResult<List<CategoryEntity>>> call() async{
-   return await homeRpo.getCategories();
-  }
+  final HomeRepo homeRepo;
+  final HomeProductsUseCase? _unusedHomeProductsUseCase;
 
+  HomeCategoryUseCase(this.homeRepo, [HomeProductsUseCase? homeProductsUseCase])
+      : _unusedHomeProductsUseCase = homeProductsUseCase;
+
+  Future<ApiResult<List<CategoryEntity>>> call() async {
+    return await homeRepo.getCategories();
+  }
 }

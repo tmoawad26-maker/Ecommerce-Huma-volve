@@ -1,26 +1,22 @@
-import 'package:dio/dio.dart';
 import 'package:ecommerce_app_huma_volve/core/constants/api_constants.dart';
 import 'package:ecommerce_app_huma_volve/core/constants/api_endpoints.dart';
+import 'package:ecommerce_app_huma_volve/core/network/api_client.dart';
 
 import 'category_model.dart';
 import 'product_model.dart';
 
 class HomeService {
-  HomeService(this._dio);
+  HomeService(this._apiClient);
 
-  final Dio _dio;
+  final ApiClient _apiClient;
 
   Future<List<CategoryModel>> getCategories() async {
-    try {
-      final response = await _dio.get(ApiEndpoints.categories);
-      List jsonData = response.data;
-      List<CategoryModel> categoriesData = jsonData
-          .map((category) => CategoryModel.fromJson(category))
-          .toList();
-      return categoriesData;
-    } on DioException catch (e) {
-      throw Exception(e.message);
-    }
+    final response = await _apiClient.get(ApiEndpoints.categories);
+    final List jsonData = response.data;
+    final categoriesData = jsonData
+        .map((category) => CategoryModel.fromJson(category))
+        .toList();
+    return categoriesData;
   }
 
   Future<List<ProductModel>> getCategoryById({
@@ -28,7 +24,7 @@ class HomeService {
     required int limit,
     required int offset,
   }) async {
-    final response = await _dio.get(
+    final response = await _apiClient.get(
       '${ApiEndpoints.categories}/$id/${ApiEndpoints.products}',
       queryParameters: {ApiConstants.limit: limit, ApiConstants.offset: offset},
     );
